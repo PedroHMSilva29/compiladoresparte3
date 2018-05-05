@@ -1556,7 +1556,6 @@ bool identificador(int temp){
 	if(temp == IDENTIFICADOR){
 		return true;
 	}
-	printf("Erro! Identificador invalido");
 	return false;
 }
 //Verif 14
@@ -1569,14 +1568,17 @@ bool chamada_procedimento(){
 		}
 		else if(temp == PARENTESEESQ){
 			if(lista_parametros() == true){
-				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA){
-					return true;
-				}
+				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
+					if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA){
+						return true;
+					}
 				else{
 					NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
 					printf("Erro! esperava ';'");
 					return false;	
 				}
+				}
+			
 			}
 		  NUM_TOKEN_ATUAL--;	
 		}else{
@@ -1590,26 +1592,23 @@ bool chamada_procedimento(){
 	return false;
 }
 //verif 15
+bool veri_parama = false;
 bool lista_parametros(){
-	 
-	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEESQ){
-		int temp2 = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
-		if(identificador(temp2) == true || numero(temp2)  == true || bool1(temp2) == true){
-			if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
+		
+		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
+		if(identificador(temp) == true || numero(temp)  == true || bool1(temp) == true){
+			int temp2 = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
+			
+			if(temp2 == VIRGULA){
+				lista_parametros();
+			}
+				
+			if(temp2 == PARENTESEDIR){
+				veri_parama = true;
 				return true;
-			}else{
-				printf("Erro! esperava ')'");
-				NUM_TOKEN_ATUAL= NUM_TOKEN_ATUAL-3;
-				return false;
 			}
 		}
-		else NUM_TOKEN_ATUAL= NUM_TOKEN_ATUAL-2;
-	}else{
-		//returna true pois tudo é opcional
-		NUM_TOKEN_ATUAL--;
-		return true;
-	}
-	return false;
+	return veri_parama;
 }
 //verif
 bool numero(int temp){
@@ -1998,16 +1997,41 @@ bool parametro_formal(){
 	NUM_TOKEN_ATUAL--;
 	return false;
 }
-//verif 5 <-->
-bool tipo(int temp){
-	if(temp == INTEIRO)
-		return true;
-	else if(temp == BOOLEANO)
-		return true;
-	else
-		return false;
-	
+
+
+// 1
+bool programa(){
+	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PROGRAMA){
+		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
+		if(identificador(temp) == true){
+			if(bloco() == true){
+				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == FIMPROGRAMA){
+					return true;
+				}
+				else{
+					NUM_TOKEN_ATUAL--;
+					printf("Erro! esperava palavra reservada 'Fimprograma'");
+					return false;
+				}
+			}	
+		} 
+	}
+	NUM_TOKEN_ATUAL--;
+	printf("Erro! esperava palavra reservada 'Programa'");
+	return false;
 }
+
+//verif 3 <-->
+bool bloco_valid = false;
+bool parte_declaracao_variavel(){
+	if(declaracao_variavel() == true){
+		bloco_valid = true;
+		parte_declaracao_variavel();
+		return bloco_valid;
+	}
+	return bloco_valid;
+}
+
 //Verif 4 <-->
 bool declaracao_variavel(){
 	if(tipo(SEQ_TOKENS[NUM_TOKEN_ATUAL++]) == true){
@@ -2031,16 +2055,18 @@ bool declaracao_variavel(){
 	NUM_TOKEN_ATUAL--;
 	return false;
 }
-//verif 3 <-->
-bool bloco_valid = false;
-bool parte_declaracao_variavel(){
-	if(declaracao_variavel() == true){
-		bloco_valid = true;
-		parte_declaracao_variavel();
-		return bloco_valid;
-	}
-	return bloco_valid;
+
+//verif 5 <-->
+bool tipo(int temp){
+	if(temp == INTEIRO)
+		return true;
+	else if(temp == BOOLEANO)
+		return true;
+	else
+		return false;
+	
 }
+
 //verif 6 <--->
 bool bloco_id_valid = false;
 bool lista_identificadores(){
@@ -2078,27 +2104,7 @@ bool parte_declaracao_subrotina(){
 	return true;
 }
 
-// 1
-bool programa(){
-	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PROGRAMA){
-		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
-		if(identificador(temp) == true){
-			if(bloco() == true){
-				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == FIMPROGRAMA){
-					return true;
-				}
-				else{
-					NUM_TOKEN_ATUAL--;
-					printf("Erro! esperava palavra reservada 'Fimprograma'");
-					return false;
-				}
-			}	
-		} 
-	}
-	NUM_TOKEN_ATUAL--;
-	printf("Erro! esperava palavra reservada 'Programa'");
-	return false;
-}
+
 
 
 int main(){
@@ -2147,11 +2153,12 @@ int main(){
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = parametros_formais();
+    bool is_valid = lista_parametros();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
     	printf("Sintaxe invalida!");
+    	printf("%d\n", SEQ_TOKENS[NUM_TOKEN_ATUAL]);
+return 0;
     	
-    //	printf("%d\n", SEQ_TOKENS[NUM_TOKEN_ATUAL]);
 }
