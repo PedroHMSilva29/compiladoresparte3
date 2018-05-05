@@ -2076,10 +2076,12 @@ bool parte_declaracao_variavel(){
 	return bloco_valid;
 }
 //verif 6 <--->
+bool bloco_id_valid = false;
 bool lista_identificadores(){
 	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
 	
 	if(identificador(temp) == true){
+		bloco_id_valid = true;
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == VIRGULA ){
 			lista_identificadores();
 		}
@@ -2088,8 +2090,13 @@ bool lista_identificadores(){
 			return true;
 		}
 	}
-	NUM_TOKEN_ATUAL--;
-	return false;
+	
+	if(true == bloco_id_valid)
+		return true;
+	else{
+		NUM_TOKEN_ATUAL--;
+		return false;
+	}
 }
 // 1
 bool programa(){
