@@ -1535,7 +1535,7 @@ int scanner(char cod[], int *pos){
 
 }
 
-//Metodos do analisador sintatico 'aki nois controi fibra poha'
+//Metodos do analisador sintatico 'aki nois constroi fibra poha'
 
 //Array com todos os token sequencialmente dispostos do programa
 int SEQ_TOKENS[5000];
@@ -1543,79 +1543,75 @@ int SEQ_TOKENS[5000];
 //Indice do token atual
 int NUM_TOKEN_ATUAL=0;
 
-
 //Verifica o proxima token sem "desempilha-lo"
-char lookhead(){
+
+//Verif
+int lookhead(){
 	 int temp = NUM_TOKEN_ATUAL+ 1;
 	 return SEQ_TOKENS[temp];
 }
-
-bool identificador(){
-	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == IDENTIFICADOR){
+//Verif 27 <-->
+bool identificador(int temp){
+	
+	if(temp == IDENTIFICADOR){
 		return true;
 	}
 	printf("Erro! Identificador invalido");
 	return false;
 }
-
+//Verif 
 bool chamada_procedimento(){
-	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
 	
-	if(temp == IDENTIFICADOR){
-		NUM_TOKEN_ATUAL++;
-
-		if(SEQ_TOKENS[NUM_TOKEN_ATUAL] == PONTOEVIRGULA){
-			NUM_TOKEN_ATUAL++;
+	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == IDENTIFICADOR){
+		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
+		if(temp == PONTOEVIRGULA){
 			return true;
-		} else if(SEQ_TOKENS[NUM_TOKEN_ATUAL] == PARENTESEESQ){
-			NUM_TOKEN_ATUAL++;
-			if( lista_parametros() == true){
-				if(SEQ_TOKENS[NUM_TOKEN_ATUAL] == PONTOEVIRGULA){
-					NUM_TOKEN_ATUAL++;
+		}
+		else if(temp == PARENTESEESQ){
+			if(lista_parametros() == true){
+				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA){
 					return true;
 				}
 				else{
+					NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
 					printf("Erro! esperava ';'");
 					return false;	
 				}
 			}
-				
-		}
-		else{
+		  NUM_TOKEN_ATUAL--;	
+		}else{
+			NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
 			printf("Erro! esperava ';' ou abertura dos parenteses");
 			return false;	
 		}
 		
 	}
+	NUM_TOKEN_ATUAL--;
 	return false;
 }
-
+//verif 15
 bool lista_parametros(){
-	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
-	int look = lookhead();
-	
-	if(temp == PARENTESEDIR){
-		NUM_TOKEN_ATUAL++;
-		return true;
-	}else if(variavel(temp) && look != VIRGULA){
-		NUM_TOKEN_ATUAL++;
-		return true;
-	}else if(numero(temp) && look != VIRGULA){
-		NUM_TOKEN_ATUAL++;
-		return true;
-	}else if(bool1(temp) && look != VIRGULA){
-		NUM_TOKEN_ATUAL++;
-		return true;
-	}else if(look == VIRGULA && (variavel(temp) || numero(temp) || bool1(temp))){
-		NUM_TOKEN_ATUAL++;
-		lista_parametros();
+	 
+	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEESQ){
+		int temp2 = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
+		if(identificador(temp2) == true || numero(temp2)  == true || bool1(temp2) == true){
+			if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
+				return true;
+			}else{
+				printf("Erro! esperava ')'");
+				NUM_TOKEN_ATUAL= NUM_TOKEN_ATUAL-3;
+				return false;
+			}
+		}
+		else NUM_TOKEN_ATUAL= NUM_TOKEN_ATUAL-2;
 	}else{
-		printf("Erro! lista de parametros invalida");
-		return false;
+		//returna true pois tudo é opcional
+		NUM_TOKEN_ATUAL--;
+		return true;
 	}
-		
+	return false;
 }
-
+//verif
 bool numero(int temp){
 	if(temp == NUMERO)
 		return true;
@@ -1624,7 +1620,7 @@ bool numero(int temp){
 		return false;
 	}
 }
-
+//verif
 bool bool1(int temp){
 	if(temp == FALSO || temp == VERDADEIRO)
 		return true;
@@ -1633,7 +1629,7 @@ bool bool1(int temp){
 		return false;
 	}
 }
-
+//verif
 bool variavel(int temp){
 	if(temp == IDENTIFICADOR)
 		return true;
@@ -1642,7 +1638,7 @@ bool variavel(int temp){
 		return false;
 	}
 }
-
+//verif
 bool expressao(){
 	if(expressao_simples() == true){
 		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
@@ -1653,28 +1649,39 @@ bool expressao(){
 				return false;
 			}
 		}else{
+			//true pois esse bloco é opcional
+			NUM_TOKEN_ATUAL--;
 			return true;
 		}
 	}
 	return false;
 }
-
+//verif
 bool atribuicao(){
 	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
 	if(variavel(temp) == true) {
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == ATRIBUICAO){
 			if(expressao() == true){
-				return true;
+				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA)
+					return true;
+				else{
+					NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL -3;
+					printf("Erro! esperava o simbolo  ';'");
+					return false;	
+				}
+					
 			}
 		}
 		else{
+			NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
 			printf("Erro! esperava o simbolo de atribuicao '='");
 			return false;
 		}
 	}
+	NUM_TOKEN_ATUAL--;
 	return false;
 }
-
+//verif 16
 bool comando_condicional(){	
 	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == SE){
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEESQ){
@@ -1682,38 +1689,55 @@ bool comando_condicional(){
 				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
 					if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == ENTAO){
 						if(comando() == true){
-							if(lookhead() == SENAO){
+							int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
+							if(temp == SENAO){
+								
 								if(comando() == true){
 									if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == FIMSE)
 										return true;
-								}
+									else
+										{
+											NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-5;
+											printf("Erro! esperava palavra reservada 'fimse'");
+											return false;		
+										}
+								}else NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-4;
 							}
-							else if(lookhead() == FIMSE)
+							else if(temp == FIMSE)
 								return true;
-						}
+							else{
+								NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-4;
+								printf("Erro! esperava palavra reservada 'fimse'");
+								return false;		
+							}
+						}else NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-4;
 					}
 					else{
+						NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-4;
 						printf("Erro! esperava palavra reservada 'entao'");
 						return false;	
 					}
 				}
 				else{
+					NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
 					printf("Erro! esperava palavra reservada ')'");
 					return false;	
 				}
-			}
+			}else NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
 		}
 		else{
+			NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
 			printf("Erro! esperava palavra reservada '('");
 			return false;	
 		}
-	}
-	else{
-		printf("Erro! esperava palavra reservada 'se'");
-		return false;	
+	}else{
+	NUM_TOKEN_ATUAL--;
+	printf("Erro! esperava palavra reservada 'se'");
+	return false;	
 	}
 	
 	return false;
+	
 }
 
 bool comando_repetitivo(){
@@ -1763,7 +1787,8 @@ bool comando(){
 	else if (lookhead() == ESCREVA){
 		NUM_TOKEN_ATUAL++;
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEESQ){
-			if(identificador() == true){
+			int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
+			if(identificador(temp) == true){
 				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
 					if(comando() && SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA){
 						return true;
@@ -1852,7 +1877,7 @@ bool expressao_simples(){
 	}
 	return false;
 }
-
+//verif
 bool relacao(int temp){
 	if(temp == COMPARACAO){
 		return true;
@@ -1892,37 +1917,93 @@ bool comando_composto(){
 }
 
 bool bloco(){
-	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
-	if(temp == true){
-		//erros aki
-	}else if(true){
-	}else if(comando_composto() == true){
-		
-	}
-	return false;
-	
-}
+    //Pelo que entendi aqui tem 4 possibilidades:
+    // 1 -> ter declaracao de variaveis, de procedimentos e (obrigatorio) comando composto
+    // 2 -> ter declaracao de variaveis, e (obrigatorio) comando composto
+    // 3 -> ter declaracao de procedimentos e (obrigatorio) comando composto
+    // 4 -> ter só o comando composto
 
+//	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
+
+    //Possibilidade 1
+    //Como é opcional, faz um lookahead pra olhar sem desempilhar
+    if(lookhead() == declaracao_variavel()) {
+        //Faz outro para identificar a segunda camada de opcionais
+	    if(lookhead() == chamada_procedimento()) {
+	        //Se chegou até aqui, agora temos que realmente desempilhar 2 vezes.
+	        int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
+	        //Verifica se é comando composto e retorna true
+	        if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == comando_composto()){
+	            return true;
+	        }
+	    }
+	}
+    //Possibilidade 2
+    //Como é opcional, faz um lookahead pra olhar sem desempilhar
+    if(lookhead() == declaracao_variavel()) {
+        //Aqui só estamos uma camada dentro então só desempilha uma vez
+        //Verifica se é comando composto e retorna true
+        if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == comando_composto()){
+            return true;
+        }
+    }
+    //Possibilidade 3
+    //Quase a mesma coisa da possiblidade 3, só troca declaracao_variavel por chamada_procedimento
+    if(lookhead() == chamada_procedimento()) {
+        //Verifica se é comando composto e retorna true
+        if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == comando_composto()){
+            return true;
+        }
+    }
+    //Possibilidade 4
+    //Só checa o comando_composto
+    if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == comando_composto()) {
+        return true;
+    }
+
+    //Se não caiu em nenhuma das probabiidades de cima, retorna falso;
+    return false;
+}
+//verif 8
 bool declaracao_procedimento(){
 	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PROCEDIMENTO){
-		if(identificador() == true){
+		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
+		if(identificador(temp) == true){
 			if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEESQ){
 				if(parametros_formais() == true){
 					if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
 						if(bloco() == true){
 							if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == FIMPROCEDIMENTO)
 								return true;
-						}
+							else{
+								NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-4;
+								printf("Erro! esperava um 'fimprocedimento'");
+								return false;
+							}
+						}else NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
+					}else{
+						NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
+						printf("Erro! esperava um ')'");
+						return false;
 					}
-				}
+				}else NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
+			}else{
+				NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
+				printf("Erro! esperava um '('");
+				return false;	
 			}
-		}
+		} else NUM_TOKEN_ATUAL--;
+	} else {
+			NUM_TOKEN_ATUAL--;
+			printf("Erro! esperava um ':'");
+			return false;
 	}
+	return false;
 }
 
 bool parametros_formais(){
 	if(parametro_formal() == true){
-		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == VIRGULA){
+	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == VIRGULA){
 			parametros_formais();
 		}
 		else{
@@ -1946,7 +2027,7 @@ bool parametro_formal(){
 	}
 	return false;
 }
-
+//verif 5 <-->
 bool tipo(int temp){
 	if(temp == INTEIRO)
 		return true;
@@ -1957,29 +2038,33 @@ bool tipo(int temp){
 		return false;
 	}
 }
-
-bool declaracao_variaveis(){
+//Verif 4 <-->
+bool declaracao_variavel(){
 	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
 	if(tipo(temp) == true){
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == DOISPONTOS){
 			if(lista_identificadores() == true){
+				
 				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA)
 					return true;
 				else{
+					NUM_TOKEN_ATUAL=NUM_TOKEN_ATUAL-3;;
 					printf("Erro! esperava ';'");
 					return false;
 				}
-			}
-		}else{
+		    }
+	   }else{
+			NUM_TOKEN_ATUAL=NUM_TOKEN_ATUAL-2;;
 			printf("Erro! esperava ':'");
 			return false;
 		}
 	}
+	NUM_TOKEN_ATUAL--;
 	return false;
 }
-
+// 3
 bool parte_declaracao_variavel(){
-	if(declaracao_variaveis() == true){
+	if(declaracao_variavel() == true){
 		int look = lookhead();
 		if(tipo(look) == true)
 			parte_declaracao_variavel();
@@ -1988,36 +2073,44 @@ bool parte_declaracao_variavel(){
 		}
 		
 	}
+	NUM_TOKEN_ATUAL--;
 	return false;
 }
-
+//verif 6 <--->
 bool lista_identificadores(){
 	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
+	
 	if(identificador(temp) == true){
+		NUM_TOKEN_ATUAL++;
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == VIRGULA ){
 			lista_identificadores();
 		}
 		else{
+			NUM_TOKEN_ATUAL--;
 			return true;
 		}
 	}
+	NUM_TOKEN_ATUAL--;
 	return false;
 }
-
+// 1
 bool programa(){
 	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PROGRAMA){
-		if(identificador() == true){
+		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
+		if(identificador(temp) == true){
 			if(bloco() == true){
 				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == FIMPROGRAMA){
 					return true;
 				}
 				else{
+					NUM_TOKEN_ATUAL--;
 					printf("Erro! esperava palavra reservada 'Fimprograma'");
 					return false;
 				}
 			}	
 		} 
 	}
+	NUM_TOKEN_ATUAL--;
 	printf("Erro! esperava palavra reservada 'Programa'");
 	return false;
 }
@@ -2063,10 +2156,16 @@ int main(){
     	
     }
     
+    printf("%d\n", SEQ_TOKENS[0]);
+    printf("%d\n", SEQ_TOKENS[1]);
+    printf("%d\n", SEQ_TOKENS[2]);
+    printf("%d\n", SEQ_TOKENS[3]);
+    printf("%d\n", NUM_TOKEN_ATUAL);
+    SEQ_TOKENS[NUM_TOKEN_ATUAL]=0;
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = comando_condicional();
+    bool is_valid = declaracao_variavel();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
