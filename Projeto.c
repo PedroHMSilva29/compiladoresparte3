@@ -1912,8 +1912,14 @@ bool fator(){
 
 bool comando_composto(){
 	if(comando() && SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA){
-			
+					    return true;
 	}
+
+	if(comando() && lookhead() == comando()) {
+	    return true;
+ 	}	 	
+
+	return false;
 }
 
 bool bloco(){
@@ -1927,7 +1933,7 @@ bool bloco(){
 
     //Possibilidade 1
     //Como é opcional, faz um lookahead pra olhar sem desempilhar
-    if(lookhead() == declaracao_variavel()) {
+    if(lookhead() == parte_declaracao_variavel()) {
         //Faz outro para identificar a segunda camada de opcionais
 	    if(lookhead() == chamada_procedimento()) {
 	        //Se chegou até aqui, agora temos que realmente desempilhar 2 vezes.
@@ -1940,7 +1946,7 @@ bool bloco(){
 	}
     //Possibilidade 2
     //Como é opcional, faz um lookahead pra olhar sem desempilhar
-    if(lookhead() == declaracao_variavel()) {
+    if(lookhead() == parte_declaracao_variavel()) {
         //Aqui só estamos uma camada dentro então só desempilha uma vez
         //Verifica se é comando composto e retorna true
         if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == comando_composto()){
@@ -1967,8 +1973,7 @@ bool bloco(){
 //verif 8
 bool declaracao_procedimento(){
 	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PROCEDIMENTO){
-		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
-		if(identificador(temp) == true){
+		if(identificador(SEQ_TOKENS[NUM_TOKEN_ATUAL]++) == true){
 			if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEESQ){
 				if(parametros_formais() == true){
 					if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
@@ -2078,10 +2083,9 @@ bool parte_declaracao_variavel(){
 }
 //verif 6 <--->
 bool lista_identificadores(){
-	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
+	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
 	
 	if(identificador(temp) == true){
-		NUM_TOKEN_ATUAL++;
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == VIRGULA ){
 			lista_identificadores();
 		}
