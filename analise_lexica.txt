@@ -1,1 +1,1 @@
-programa idd vv = aa + bb ; vv = falso ; fimprograma 
+programa nome a = b + c ; a = falso ; fimprograma 
