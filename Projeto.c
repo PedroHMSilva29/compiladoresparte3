@@ -1566,8 +1566,11 @@ bool chamada_procedimento(){
 		if(temp == PONTOEVIRGULA){
 			return true;
 		}
+		//printf("PARAM: %d\n", temp);
+		//printf("PARAM: %d\n", SEQ_TOKENS[NUM_TOKEN_ATUAL]);
 		else if(temp == PARENTESEESQ){
 			if(lista_parametros() == true){
+				printf("PARAM: %d\n", SEQ_TOKENS[NUM_TOKEN_ATUAL]);
 				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
 					if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA){
 						return true;
@@ -1604,6 +1607,7 @@ bool lista_parametros(){
 			}
 				
 			if(temp2 == PARENTESEDIR){
+				NUM_TOKEN_ATUAL--;
 				veri_parama = true;
 				return true;
 			}
@@ -2153,7 +2157,7 @@ int main(){
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = lista_parametros();
+    bool is_valid = chamada_procedimento();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
