@@ -1798,36 +1798,21 @@ bool termo(){
 	}
 	return false;
 }
-
+//Verif 20
 bool verif_exp = false;
 bool expressao_simples(){
 	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
 	
 	if(temp == MAIS || temp == MENOS){
 		if(termo() == true){
-			int temp2 = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
-			if(temp2 == MAIS){
-				if(termo() == true)
-					return true;
-				else
-					return false;
-			}
-			else if(temp2 == MENOS){
-				if(termo() == true)
-					return true;
-				else
-					return false;
-			}
-			else{
-				return true;
-			}
+			verif_exp = true;
+			expressao_simples();
 		}
 	} else if(termo() == true){
 		verif_exp = true;
 		expressao_simples();
 	}
 	
-	NUM_TOKEN_ATUAL--;
 	return verif_exp;
 }
 //verif
@@ -1977,31 +1962,40 @@ bool declaracao_procedimento(){
 	}
 	return false;
 }
-
+//verif 11
+bool verif_form = false;
 bool parametros_formais(){
 	if(parametro_formal() == true){
 	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == VIRGULA){
+			verif_form = true;
 			parametros_formais();
 		}
 		else{
 			return true;
 		}
 	}
+	return verif_form;
 	
 }
 
+//Verif 10
 bool parametro_formal(){
-	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
-	if(tipo(temp) == true){
+	if(tipo(SEQ_TOKENS[NUM_TOKEN_ATUAL++]) == true){
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == DOISPONTOS){
-			if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == IDENTIFICADOR)
+			if(identificador(SEQ_TOKENS[NUM_TOKEN_ATUAL++]) == true)
 				return true;
+			else{
+				NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
+				return false;	
+			}
 		}
 		else{
+			NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
 			printf("Erro! esperava um ':'");
 			return false;
 		}
 	}
+	NUM_TOKEN_ATUAL--;
 	return false;
 }
 //verif 5 <-->
@@ -2147,18 +2141,17 @@ int main(){
     	
     }
     
-    printf("%d\n", SEQ_TOKENS[0]);
-    printf("%d\n", SEQ_TOKENS[1]);
-    printf("%d\n", SEQ_TOKENS[2]);
-    printf("%d\n", SEQ_TOKENS[3]);
+ 
     printf("%d\n", NUM_TOKEN_ATUAL);
     SEQ_TOKENS[NUM_TOKEN_ATUAL]=0;
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = comando();
+    bool is_valid = parametros_formais();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
     	printf("Sintaxe invalida!");
+    	
+    //	printf("%d\n", SEQ_TOKENS[NUM_TOKEN_ATUAL]);
 }
