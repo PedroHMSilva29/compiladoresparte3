@@ -1638,31 +1638,7 @@ bool variavel(int temp){
 	
 }
 
-//verif
-bool atribuicao(){
-	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
-	if(variavel(temp) == true) {
-		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == ATRIBUICAO){
-			if(expressao() == true){
-				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA)
-					return true;
-				else{
-					NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL -3;
-					printf("Erro! esperava o simbolo  ';'");
-					return false;	
-				}
-					
-			}
-		}
-		else{
-			NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
-			printf("Erro! esperava o simbolo de atribuicao '='");
-			return false;
-		}
-	}
-	NUM_TOKEN_ATUAL--;
-	return false;
-}
+
 //verif 16
 bool comando_condicional(){	
 	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == SE){
@@ -1946,6 +1922,35 @@ bool comando(){
 	return false;	
 }
 
+//verif 13
+bool atribuicao(){
+	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
+	if(variavel(temp) == true) {
+		
+		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == ATRIBUICAO){
+			if(expressao() == true){
+				NUM_TOKEN_ATUAL--;
+				
+				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA)
+					return true;
+				else{
+					NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL -3;
+					printf("Erro! esperava o simbolo  ';'");
+					return false;	
+				}
+					
+			}
+		}
+		else{
+			NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
+			printf("Erro! esperava o simbolo de atribuicao '='");
+			return false;
+		}
+	}
+	NUM_TOKEN_ATUAL--;
+	return false;
+}
+
 bool bloco(){
     // 1 -> ter declaracao de variaveis, 
     // 3 -> ter declaracao de procedimentos 
@@ -2038,7 +2043,7 @@ bool programa(){
 	return false;
 }
 
-//verif 3 <-->
+//verif 3
 bool bloco_valid = false;
 bool parte_declaracao_variavel(){
 	if(declaracao_variavel() == true){
@@ -2049,7 +2054,7 @@ bool parte_declaracao_variavel(){
 	return bloco_valid;
 }
 
-//Verif 4 <-->
+//Verif 4
 bool declaracao_variavel(){
 	if(tipo(SEQ_TOKENS[NUM_TOKEN_ATUAL++]) == true){
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == DOISPONTOS){
@@ -2073,7 +2078,7 @@ bool declaracao_variavel(){
 	return false;
 }
 
-//verif 5 <-->
+//verif 5
 bool tipo(int temp){
 	if(temp == INTEIRO)
 		return true;
@@ -2084,7 +2089,7 @@ bool tipo(int temp){
 	
 }
 
-//verif 6 <--->
+//verif 6
 bool bloco_id_valid = false;
 bool lista_identificadores(){
 	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
@@ -2170,7 +2175,7 @@ int main(){
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = expressao();
+    bool is_valid = atribuicao();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
