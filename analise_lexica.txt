@@ -1,0 +1,1 @@
+programa idd vv = aa + bb ; vv = falso ; fimprograma 
