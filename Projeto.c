@@ -1773,6 +1773,44 @@ bool comando_repetitivo(){
 	}
 }
 
+//verif
+bool relacao(int temp){
+	if(temp == COMPARACAO){
+		return true;
+	}else if(temp == MAIOR){
+		return true;
+	}else if(temp == MENOR){
+		return true;
+	}else if(temp == MENORIGUAL){
+		return true;
+	}else if(temp == MAIORIGUAL){
+		return true;
+	}else if(temp == DIFERENTE){
+		return true;
+	}else{
+		printf("Erro! relacao invalida");
+		return false;
+	}
+}
+
+//Verif 20
+bool verif_exp = false;
+bool expressao_simples(){
+	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
+	
+	if(temp == MAIS || temp == MENOS){
+		if(termo() == true){
+			verif_exp = true;
+			expressao_simples();
+		}
+	} else if(termo() == true){
+		verif_exp = true;
+		expressao_simples();
+	}
+	
+	return verif_exp;
+}
+
 // 21
 bool termo(){
 	if(fator() == true){
@@ -1797,49 +1835,11 @@ bool termo(){
 	}
 	return false;
 }
-//Verif 20
-bool verif_exp = false;
-bool expressao_simples(){
-	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
-	
-	if(temp == MAIS || temp == MENOS){
-		if(termo() == true){
-			verif_exp = true;
-			expressao_simples();
-		}
-	} else if(termo() == true){
-		verif_exp = true;
-		expressao_simples();
-	}
-	
-	return verif_exp;
-}
-//verif
-bool relacao(int temp){
-	if(temp == COMPARACAO){
-		return true;
-	}else if(temp == MAIOR){
-		return true;
-	}else if(temp == MENOR){
-		return true;
-	}else if(temp == MENORIGUAL){
-		return true;
-	}else if(temp == MAIORIGUAL){
-		return true;
-	}else if(temp == DIFERENTE){
-		return true;
-	}else{
-		printf("Erro! relacao invalida");
-		return false;
-	}
-}
 
 //Verif 22
 bool fator(){
 	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
-	
-	if(variavel(temp))
-		return true;
+	if(variavel(temp)) return true;
 	else if(numero(temp))
 		return true;
 	else if(bool1(temp))
@@ -2163,7 +2163,7 @@ int main(){
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = fator();
+    bool is_valid = expressao_simples();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
