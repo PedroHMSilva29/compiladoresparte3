@@ -1535,8 +1535,6 @@ int scanner(char cod[], int *pos){
 
 }
 
-//Metodos do analisador sintatico 'aki nois constroi fibra poha'
-
 //Array com todos os token sequencialmente dispostos do programa
 int SEQ_TOKENS[5000];
 
@@ -1550,7 +1548,7 @@ int lookhead(){
 	 int temp = NUM_TOKEN_ATUAL+ 1;
 	 return SEQ_TOKENS[temp];
 }
-//Verif 27 <-->
+//Verif 27 
 bool identificador(int temp){
 	
 	if(temp == IDENTIFICADOR){
@@ -1690,7 +1688,6 @@ bool comando_condicional(){
 		}
 	}else{
 	NUM_TOKEN_ATUAL--;
-	printf("Erro! esperava palavra reservada 'se'");
 	return false;	
 	}
 	
@@ -1727,7 +1724,6 @@ bool comando_repetitivo(){
 		}
   }
 	else{
-		printf("Erro! esperava palavra reservada 'enquanto'");
 		return false;
 	}
 }
@@ -1865,7 +1861,7 @@ bool declaracao_procedimento(){
 		} else NUM_TOKEN_ATUAL--;
 	} else {
 			NUM_TOKEN_ATUAL--;
-			printf("Erro! esperava um ':'");
+		
 			return false;
 	}
 	return false;
@@ -1875,12 +1871,10 @@ bool declaracao_procedimento(){
 bool verifica_composto = false;
 bool comando_composto(){
 	if(comando() == true){
-		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PONTOEVIRGULA){
+			printf("%d",SEQ_TOKENS[NUM_TOKEN_ATUAL]);
 		    verifica_composto= true;
 			comando_composto();
-		} else return false;
 	}
- 	
 	return verifica_composto;
 }
 
@@ -1947,39 +1941,11 @@ bool atribuicao(){
 			return false;
 		}
 	}
-	NUM_TOKEN_ATUAL--;
+	//NUM_TOKEN_ATUAL--;
 	return false;
 }
 
-bool bloco(){
-    // 1 -> ter declaracao de variaveis, 
-    // 3 -> ter declaracao de procedimentos 
-    // 4 -> ter declaracao de comando composto
 
-    //Possibilidade 1
-    //Como é opcional, faz um lookahead pra olhar sem desempilhar
-    if(true == parte_declaracao_variavel()) {
-	    if(true == parte_declaracao_subrotina()){
-	    	if(true == comando_composto())
-	    		return true;
-		}else if(true == comando_composto()) return true;
-	     else return false;
-	}
-	
-    //Possibilidade 2
-    //Como é opcional, faz um lookahead pra olhar sem desempilhar
-   if(true == parte_declaracao_subrotina()) {
-        if(true == comando_composto())return true;
-        else return false;
-    }
-   
-    //Possibilidade 3
-    //Só checa o comando_composto
-    if(true == comando_composto()) return true;
-    
-    //Se não caiu em nenhuma das probabiidades de cima, retorna falso;
-    return false;
-}
 
 //Verif 10
 bool parametro_formal(){
@@ -2018,18 +1984,17 @@ bool parametros_formais(){
 	
 }
 
-
-
-
 // 1
 bool programa(){
 	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PROGRAMA){
-		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL];
+		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
 		if(identificador(temp) == true){
+		
 			if(bloco() == true){
-				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == FIMPROGRAMA){
+				NUM_TOKEN_ATUAL= NUM_TOKEN_ATUAL-2;
+				
+				if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == FIMPROGRAMA)
 					return true;
-				}
 				else{
 					NUM_TOKEN_ATUAL--;
 					printf("Erro! esperava palavra reservada 'Fimprograma'");
@@ -2041,6 +2006,33 @@ bool programa(){
 	NUM_TOKEN_ATUAL--;
 	printf("Erro! esperava palavra reservada 'Programa'");
 	return false;
+}
+
+//Verif 2
+bool bloco(){
+    //Possibilidade 1
+    //Como é opcional, faz um lookahead pra olhar sem desempilhar
+    if(true == parte_declaracao_variavel()) {
+	    if(true == parte_declaracao_subrotina()){
+	    	if(true == comando_composto())
+	    		return true;
+		}else if(true == comando_composto()) return true;
+	     else return false;
+	}
+	
+    //Possibilidade 2
+    //Como é opcional, faz um lookahead pra olhar sem desempilhar
+   if(true == parte_declaracao_subrotina()) {
+        if(true == comando_composto())return true;
+        else return false;
+    }
+   
+    //Possibilidade 3
+    //Só checa o comando_composto
+    if(true == comando_composto()) return true;
+    
+    //Se não caiu em nenhuma das probabiidades de cima, retorna falso;
+    return false;
 }
 
 //verif 3
@@ -2070,7 +2062,6 @@ bool declaracao_variavel(){
 		    }
 	   }else{
 			NUM_TOKEN_ATUAL=NUM_TOKEN_ATUAL-2;;
-			printf("Erro! esperava ':'");
 			return false;
 		}
 	}
@@ -2152,7 +2143,7 @@ int main(){
 				result = fprintf(arqGrava, "PALAVRA: %s - CODIGO: %d - ERRO LEXICO\n ", buf, cod);
 			else{
 				result = fprintf(arqGrava, "PALAVRA: %s - CODIGO: %d - PALAVRA ACEITA\n", buf, cod);
-				//strcpy(SEQ_TOKENS[NUM_TOKEN_ATUAL++], buf);
+				
 				SEQ_TOKENS[NUM_TOKEN_ATUAL++] = cod;
 			}
         		
@@ -2175,7 +2166,7 @@ int main(){
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = atribuicao();
+    bool is_valid = programa();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
