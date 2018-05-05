@@ -1614,32 +1614,28 @@ bool lista_parametros(){
 		}
 	return veri_parama;
 }
-//verif
+//verif 
 bool numero(int temp){
 	if(temp == NUMERO)
 		return true;
-	else{
-		printf("Erro! esperava um numero");
+	else
 		return false;
-	}
 }
 //verif
 bool bool1(int temp){
 	if(temp == FALSO || temp == VERDADEIRO)
 		return true;
-	else{
-		printf("Erro! esperava um booleano");
+	else
 		return false;
-	}
+	
 }
 //verif
 bool variavel(int temp){
 	if(temp == IDENTIFICADOR)
 		return true;
-	else{
-		printf("Erro! esperava-se um identificador");
+	else
 		return false;
-	}
+	
 }
 //verif
 bool expressao(){
@@ -1838,6 +1834,7 @@ bool relacao(int temp){
 	}
 }
 
+//Verif 22
 bool fator(){
 	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
 	
@@ -1847,8 +1844,17 @@ bool fator(){
 		return true;
 	else if(bool1(temp))
 		return true;
-	else if(temp == PARENTESEESQ) return true;
-	//ver aki
+	else if(temp == PARENTESEESQ){
+		if(expressao_simples() == true){
+			if(temp == PARENTESEDIR){
+				return true;
+			}
+		}
+		
+	}
+	NUM_TOKEN_ATUAL--;
+	return false;
+
 }
 //Verif 11
 bool verifica_composto = false;
@@ -2157,7 +2163,7 @@ int main(){
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = chamada_procedimento();
+    bool is_valid = fator();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
