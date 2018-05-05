@@ -1637,24 +1637,7 @@ bool variavel(int temp){
 		return false;
 	
 }
-//verif
-bool expressao(){
-	if(expressao_simples() == true){
-		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
-		if(relacao(temp) == true){
-			if(expressao_simples() == true){
-				return true;
-			}else{
-				return false;
-			}
-		}else{
-			//true pois esse bloco é opcional
-			NUM_TOKEN_ATUAL--;
-			return true;
-		}
-	}
-	return false;
-}
+
 //verif
 bool atribuicao(){
 	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
@@ -1773,7 +1756,27 @@ bool comando_repetitivo(){
 	}
 }
 
-//verif
+
+//verif 18
+bool expressao(){
+	if(expressao_simples() == true){
+		int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
+		if(relacao(temp) == true){
+			if(expressao_simples() == true){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			//true pois esse bloco é opcional
+			NUM_TOKEN_ATUAL--;
+			return true;
+		}
+	}
+	return false;
+}
+
+//verif 19
 bool relacao(int temp){
 	if(temp == COMPARACAO){
 		return true;
@@ -1788,7 +1791,6 @@ bool relacao(int temp){
 	}else if(temp == DIFERENTE){
 		return true;
 	}else{
-		printf("Erro! relacao invalida");
 		return false;
 	}
 }
@@ -1856,6 +1858,43 @@ bool fator(){
 	return false;
 
 }
+
+//verif 8
+bool declaracao_procedimento(){
+	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PROCEDIMENTO){
+		if(identificador(SEQ_TOKENS[NUM_TOKEN_ATUAL]++) == true){
+			if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEESQ){
+				if(parametros_formais() == true){
+					if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
+						if(bloco() == true){
+							if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == FIMPROCEDIMENTO)
+								return true;
+							else{
+								NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-4;
+								printf("Erro! esperava um 'fimprocedimento'");
+								return false;
+							}
+						}else NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
+					}else{
+						NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
+						printf("Erro! esperava um ')'");
+						return false;
+					}
+				}else NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
+			}else{
+				NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
+				printf("Erro! esperava um '('");
+				return false;	
+			}
+		} else NUM_TOKEN_ATUAL--;
+	} else {
+			NUM_TOKEN_ATUAL--;
+			printf("Erro! esperava um ':'");
+			return false;
+	}
+	return false;
+}
+
 //Verif 11
 bool verifica_composto = false;
 bool comando_composto(){
@@ -1936,56 +1975,6 @@ bool bloco(){
     //Se não caiu em nenhuma das probabiidades de cima, retorna falso;
     return false;
 }
-//verif 8
-bool declaracao_procedimento(){
-	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PROCEDIMENTO){
-		if(identificador(SEQ_TOKENS[NUM_TOKEN_ATUAL]++) == true){
-			if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEESQ){
-				if(parametros_formais() == true){
-					if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == PARENTESEDIR){
-						if(bloco() == true){
-							if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == FIMPROCEDIMENTO)
-								return true;
-							else{
-								NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-4;
-								printf("Erro! esperava um 'fimprocedimento'");
-								return false;
-							}
-						}else NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
-					}else{
-						NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-3;
-						printf("Erro! esperava um ')'");
-						return false;
-					}
-				}else NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
-			}else{
-				NUM_TOKEN_ATUAL = NUM_TOKEN_ATUAL-2;
-				printf("Erro! esperava um '('");
-				return false;	
-			}
-		} else NUM_TOKEN_ATUAL--;
-	} else {
-			NUM_TOKEN_ATUAL--;
-			printf("Erro! esperava um ':'");
-			return false;
-	}
-	return false;
-}
-//verif 11
-bool verif_form = false;
-bool parametros_formais(){
-	if(parametro_formal() == true){
-	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == VIRGULA){
-			verif_form = true;
-			parametros_formais();
-		}
-		else{
-			return true;
-		}
-	}
-	return verif_form;
-	
-}
 
 //Verif 10
 bool parametro_formal(){
@@ -2007,6 +1996,24 @@ bool parametro_formal(){
 	NUM_TOKEN_ATUAL--;
 	return false;
 }
+
+//verif 11
+bool verif_form = false;
+bool parametros_formais(){
+	if(parametro_formal() == true){
+	if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == VIRGULA){
+			verif_form = true;
+			parametros_formais();
+		}
+		else{
+			return true;
+		}
+	}
+	return verif_form;
+	
+}
+
+
 
 
 // 1
@@ -2163,7 +2170,7 @@ int main(){
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = expressao_simples();
+    bool is_valid = expressao();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
