@@ -2038,15 +2038,13 @@ bool tipo(int temp){
 		return true;
 	else if(temp == BOOLEANO)
 		return true;
-	else{
-		printf("Erro! esperva um tipo");
+	else
 		return false;
-	}
+	
 }
 //Verif 4 <-->
 bool declaracao_variavel(){
-	int temp = SEQ_TOKENS[NUM_TOKEN_ATUAL++];
-	if(tipo(temp) == true){
+	if(tipo(SEQ_TOKENS[NUM_TOKEN_ATUAL++]) == true){
 		if(SEQ_TOKENS[NUM_TOKEN_ATUAL++] == DOISPONTOS){
 			if(lista_identificadores() == true){
 				
@@ -2067,19 +2065,15 @@ bool declaracao_variavel(){
 	NUM_TOKEN_ATUAL--;
 	return false;
 }
-// 3
+//verif 3 <-->
+bool bloco_valid = false;
 bool parte_declaracao_variavel(){
 	if(declaracao_variavel() == true){
-		int look = lookhead();
-		if(tipo(look) == true)
-			parte_declaracao_variavel();
-		else{
-			return true;
-		}
-		
+		bloco_valid = true;
+		parte_declaracao_variavel();
+		return bloco_valid;
 	}
-	NUM_TOKEN_ATUAL--;
-	return false;
+	return bloco_valid;
 }
 //verif 6 <--->
 bool lista_identificadores(){
@@ -2169,7 +2163,7 @@ int main(){
     //Aqui começa o identificador sintatico
     NUM_TOKEN_ATUAL=0;
     
-    bool is_valid = declaracao_variavel();
+    bool is_valid = parte_declaracao_variavel();
     if(is_valid == true)
     	printf("Sintaxe valida!");
     else
